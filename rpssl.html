@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Form Maker PRO</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Libraries for real export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body { font-family: 'Noto Sans Bengali', Calibri; margin:0; background:#eee; }
+
+.toolbar {
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#111;
+  color:white;
+  padding:10px;
+  display:flex;
+  gap:10px;
+  z-index:1000;
+}
+
+.page {
+  background:white;
+  margin:80px auto;
+  padding:40px;
+  width:794px;
+  min-height:1123px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
+}
+
+.header {
+  text-align:center;
+  border-bottom:2px solid black;
+  margin-bottom:15px;
+  padding-bottom:10px;
+}
+
+.editor {
+  min-height:900px;
+  outline:none;
+}
+
+@media print {
+  .toolbar { display:none; }
+  .page { margin:0; border:none; page-break-after:always; }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="format('bold')">B</button>
+  <button onclick="format('italic')">I</button>
+  <button onclick="format('underline')">U</button>
+
+  <button onclick="format('justifyLeft')">Left</button>
+  <button onclick="format('justifyCenter')">Center</button>
+  <button onclick="format('justifyRight')">Right</button>
+
+  <button onclick="addPage()">Add Page</button>
+
+  <button onclick="saveData()">Save</button>
+  <button onclick="loadData()">Open</button>
+
+  <button onclick="saveAsPDF()">Save as PDF</button>
+  <button onclick="saveAsWord()">Save as Word</button>
+
+  <button onclick="window.print()">Print</button>
+</div>
+
+<div id="pages"></div>
+
+<script>
+let pageCount = 0;
+
+function format(cmd){ document.execCommand(cmd); }
+
+function getHeader(){
+return `
+<div class="header">
+  <div style="font-size:22px;font-weight:bold;">Rabindra Parisheba Samabay Samiti Limited</div>
+  <div>[Regd.no- 03-cont.2026]</div>
+  <div>At-Kotbarh, Purba Medinipur</div>
+</div>
+`;
+}
+
+function addPage(content=""){
+  pageCount++;
+
+  let page = document.createElement('div');
+  page.className='page';
+
+  page.innerHTML = `
+    ${getHeader()}
+    <div class="editor" contenteditable="true">${content}</div>
+    <div style="text-align:right">Page ${pageCount}</div>
+  `;
+
+  document.getElementById('pages').appendChild(page);
+}
+
+function init(){
+  document.getElementById('pages').innerHTML="";
+  pageCount = 0;
+  addPage();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+
+// SAVE LOCAL
+function saveData(){
+  localStorage.setItem('formData', document.getElementById('pages').innerHTML);
+  alert('Saved');
+}
+
+function loadData(){
+  let data = localStorage.getItem('formData');
+  if(data){
+    document.getElementById('pages').innerHTML = data;
+    pageCount = document.querySelectorAll('.page').length;
+    alert('Loaded');
+  }
+}
+
+// 🔥 REAL PDF EXPORT
+async function saveAsPDF(){
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p','pt','a4');
+
+  const pages = document.querySelectorAll('.page');
+
+  for(let i=0;i<pages.length;i++){
+    const canvas = await html2canvas(pages[i], {scale:2});
+    const img = canvas.toDataURL('image/png');
+
+    if(i>0) pdf.addPage();
+
+    pdf.addImage(img, 'PNG', 0, 0, 595, 842);
+  }
+
+  pdf.save('document.pdf');
+}
+
+// 🔥 REAL WORD EXPORT
+function saveAsWord(){
+  let content = document.getElementById('pages').innerHTML;
+
+  let html = `
+  <html xmlns:o='urn:schemas-microsoft-com:office:office'
+  xmlns:w='urn:schemas-microsoft-com:office:word'
+  xmlns='http://www.w3.org/TR/REC-html40'>
+  <head>
+  <meta charset='utf-8'>
+  <style>body{font-family:'Noto Sans Bengali';}</style>
+  </head>
+  <body>${content}</body>
+  </html>`;
+
+  let blob = new Blob(['\ufeff', html], {type:'application/msword'});
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement('a');
+  a.href = url;
+  a.download = 'document.doc';
+  a.click();
+}
+
+</script>
+
+</body>
+</html>
