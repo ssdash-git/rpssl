@@ -1,1 +1,46 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Microsoft Word-like Editor</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        .editor { width: 100%; height: 100vh; border: 1px solid #ccc; overflow: hidden; position: relative; }\n        .page { width: 100%; height: 29.7cm; padding: 2cm; overflow: hidden; border: 1px solid #000; box-sizing: border-box; page-break-after: always; }\n        .footer { text-align: center; position: absolute; bottom: 0; width: 100%; }\n        .title-toggle, .page-number-toggle { margin: 10px; }\n    </style>\n</head>\n<body>\n    <div class="editor">\n        <div class="page" id="page1">\n            <h1 id="title">Document Title</h1>\n            <div id="content" contenteditable="true">Start typing your content here...</div>\n            <div class="footer">\n                <span id="page-number">Page 1</span>\n            </div>\n        </div>\n    </div>\n    <script>\n        const titleToggle = document.getElementById('title');\n        const pageNumberToggle = document.getElementById('page-number');\n        const contentDiv = document.getElementById('content');\n        let isTitleVisible = true;\n        let isPageNumberVisible = true;\n\n        document.querySelector('.page').addEventListener('click', () => {\n            isTitleVisible = !isTitleVisible;\n            titleToggle.style.display = isTitleVisible ? 'block' : 'none';\n        });\n\n        contentDiv.addEventListener('input', () => {\n            if (contentDiv.scrollHeight > contentDiv.clientHeight) {\n                contentDiv.style.overflowY = 'scroll';\n            } else {\n                contentDiv.style.overflowY = 'hidden';\n            }\n        });\n\n        document.querySelector('.footer').addEventListener('click', () => {\n            isPageNumberVisible = !isPageNumberVisible;\n            pageNumberToggle.style.display = isPageNumberVisible ? 'block' : 'none';\n        });\n    <\/script>\n</body>\n</html>\n
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word-like Editor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .editor { border: 1px solid #ccc; padding: 10px; height: 500px; overflow-y: auto; }
+        .footer { margin-top: 20px; text-align: center; }
+        .pagination { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="editor" contenteditable="true">
+        <h1>Welcome to the Microsoft Word-like Editor</h1>
+        <p>This is a sample content area where you can type...</p>
+    </div>
+    <div class="footer">
+        <button onclick="toggleFooter()">Toggle Footer</button>
+        <div class="footer-content" style="display: none;">
+            <p>Footer content goes here</p>
+        </div>
+        <div class="pagination">
+            <button onclick="prevPage()">Previous</button>
+            <button onclick="nextPage()">Next</button>
+        </div>
+    </div>
+    <script>
+        function toggleFooter() {
+            const footerContent = document.querySelector('.footer-content');
+            footerContent.style.display = footerContent.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function prevPage() {
+            // Logic to handle previous page navigation
+            alert('Going to previous page');
+        }
+
+        function nextPage() {
+            // Logic to handle next page navigation
+            alert('Going to next page');
+        }
+    </script>
+</body>
+</html>
